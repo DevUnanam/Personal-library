@@ -1,0 +1,126 @@
+{% extends "core/base.html" %}
+
+{% block title %}Register - PinkNote{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="card p-8 w-full max-w-md">
+        <h2 class="text-3xl text-center mb-6">Create Your Account</h2>
+
+        <form method="POST" id="registerForm">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                <input type="text" name="username" required class="input-field" placeholder="Choose a username">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                <input type="email" name="email" required class="input-field" placeholder="your@email.com">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Password</label>
+                <input type="password" name="password" required class="input-field" placeholder="Choose a secure password">
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center">
+                    <input type="checkbox" id="enrollFace" class="mr-2">
+                    <span class="text-gray-700">Enable Face Recognition Login (Optional)</span>
+                </label>
+            </div>
+
+            <div id="faceEnrollSection" class="mb-6 hidden">
+                <div class="text-center">
+                    <video id="video" width="320" height="240" autoplay class="mx-auto rounded-lg mb-3"></video>
+                    <button type="button" id="captureFaceBtn" class="btn-secondary">Capture Face</button>
+                    <p id="faceStatus" class="mt-2 text-sm text-gray-600"></p>
+                </div>
+                <input type="hidden" name="face_data" id="faceData">
+            </div>
+
+            <button type="submit" class="btn-primary w-full">Create Account</button>
+        </form>
+
+        <p class="text-center mt-6 text-gray-600">
+            Already have an account? <a href="{% url 'login' %}" class="text-pink-main font-semibold">Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const enrollCheckbox = document.getElementById('enrollFace');
+    const faceSection = document.getElementById('faceEnrollSection');
+    const video = document.getElementById('video');
+    const captureBtn = document.getElementById('captureFaceBtn');
+    const faceStatus = document.getElementById('faceStatus');
+    const faceDataInput = document.getElementById('faceData');
+    let stream = null;
+
+    enrollCheckbox.addEventListener('change', async function() {
+        if (this.checked) {
+            faceSection.classList.remove('hidden');
+            await startVideo();
+        } else {
+            faceSection.classList.add('hidden');
+            stopVideo();
+        }
+    });
+
+    async function startVideo() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+            video.srcObject = stream;
+            faceStatus.textContent = 'Camera ready. Position your face and click Capture Face.';
+        } catch (err) {
+            faceStatus.textContent = 'Error accessing camera: ' + err.message;
+        }
+    }
+
+    function stopVideo() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    captureBtn.addEventListener('click', async function() {
+        faceStatus.textContent = 'Loading face detection models...';
+
+        try {
+            // Load face-api models
+            await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model');
+
+            faceStatus.textContent = 'Detecting face...';
+
+            const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            if (detections) {
+                const descriptor = Array.from(detections.descriptor);
+                faceDataInput.value = JSON.stringify(descriptor);
+                faceStatus.textContent = '✓ Face captured successfully!';
+                faceStatus.classList.add('text-green-600');
+                captureBtn.textContent = 'Face Captured ✓';
+                captureBtn.disabled = true;
+            } else {
+                faceStatus.textContent = 'No face detected. Please try again.';
+                faceStatus.classList.add('text-red-600');
+            }
+        } catch (err) {
+            faceStatus.textContent = 'Error: ' + err.message;
+            faceStatus.classList.add('text-red-600');
+        }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', stopVideo);
+</script>
+{% endblock %}

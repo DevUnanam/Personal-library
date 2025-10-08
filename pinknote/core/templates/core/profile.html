@@ -1,0 +1,70 @@
+{% extends "core/base.html" %}
+
+{% block title %}Profile - PinkNote{% endblock %}
+
+{% block content %}
+<div class="card p-8 max-w-2xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">Profile Settings</h2>
+
+    <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3 text-gray-800">Account Information</h3>
+        <div class="space-y-3">
+            <div>
+                <span class="text-gray-600">Username:</span>
+                <span class="font-semibold ml-2">{{ user.username }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">Email:</span>
+                <span class="font-semibold ml-2">{{ user.email }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3 text-gray-800">Face Recognition</h3>
+        {% if user.face_descriptor %}
+        <p class="text-green-600 mb-3">✓ Face recognition is enabled</p>
+        <button type="button" id="deleteFaceBtn" class="btn-secondary">Remove Face Data</button>
+        {% else %}
+        <p class="text-gray-600 mb-3">Face recognition is not set up</p>
+        <p class="text-sm text-gray-500">You can enable face recognition by registering a new account or contact support</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-8 pt-6 border-t border-gray-200">
+        <a href="{% url 'dashboard' %}" class="btn-primary">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if user.face_descriptor %}
+    document.getElementById('deleteFaceBtn').addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to remove your face recognition data? You will need to register again to use face login.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/profile/delete-face/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Face data removed successfully');
+                location.reload();
+            } else {
+                alert('Error removing face data');
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

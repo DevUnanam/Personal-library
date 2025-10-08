@@ -1,0 +1,165 @@
+{% extends "core/base.html" %}
+
+{% block title %}Login - PinkNote{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="card p-8 w-full max-w-md">
+        <h2 class="text-3xl text-center mb-6">Welcome Back</h2>
+
+        <div class="mb-6 flex gap-2">
+            <button type="button" id="passwordLoginTab" class="btn-primary flex-1">Password Login</button>
+            <button type="button" id="faceLoginTab" class="btn-secondary flex-1">Face Login</button>
+        </div>
+
+        <!-- Password Login Form -->
+        <form method="POST" id="passwordLoginForm">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                <input type="text" name="username" required class="input-field" placeholder="Your username">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Password</label>
+                <input type="password" name="password" required class="input-field" placeholder="Your password">
+            </div>
+
+            <button type="submit" class="btn-primary w-full">Login</button>
+        </form>
+
+        <!-- Face Login Form -->
+        <div id="faceLoginForm" class="hidden">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                <input type="text" id="faceUsername" required class="input-field" placeholder="Your username">
+            </div>
+
+            <div class="text-center mb-4">
+                <video id="faceVideo" width="320" height="240" autoplay class="mx-auto rounded-lg mb-3"></video>
+                <button type="button" id="startFaceLogin" class="btn-primary">Verify Face</button>
+                <p id="faceLoginStatus" class="mt-2 text-sm text-gray-600"></p>
+            </div>
+        </div>
+
+        <p class="text-center mt-6 text-gray-600">
+            Don't have an account? <a href="{% url 'register' %}" class="text-pink-main font-semibold">Register</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const passwordTab = document.getElementById('passwordLoginTab');
+    const faceTab = document.getElementById('faceLoginTab');
+    const passwordForm = document.getElementById('passwordLoginForm');
+    const faceLoginDiv = document.getElementById('faceLoginForm');
+    const video = document.getElementById('faceVideo');
+    const startFaceLoginBtn = document.getElementById('startFaceLogin');
+    const faceLoginStatus = document.getElementById('faceLoginStatus');
+    let stream = null;
+
+    passwordTab.addEventListener('click', function() {
+        passwordForm.classList.remove('hidden');
+        faceLoginDiv.classList.add('hidden');
+        passwordTab.classList.remove('btn-secondary');
+        passwordTab.classList.add('btn-primary');
+        faceTab.classList.remove('btn-primary');
+        faceTab.classList.add('btn-secondary');
+        stopVideo();
+    });
+
+    faceTab.addEventListener('click', async function() {
+        passwordForm.classList.add('hidden');
+        faceLoginDiv.classList.remove('hidden');
+        faceTab.classList.remove('btn-secondary');
+        faceTab.classList.add('btn-primary');
+        passwordTab.classList.remove('btn-primary');
+        passwordTab.classList.add('btn-secondary');
+        await startVideo();
+    });
+
+    async function startVideo() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+            video.srcObject = stream;
+            faceLoginStatus.textContent = 'Camera ready. Click Verify Face to login.';
+        } catch (err) {
+            faceLoginStatus.textContent = 'Error accessing camera: ' + err.message;
+        }
+    }
+
+    function stopVideo() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    startFaceLoginBtn.addEventListener('click', async function() {
+        const username = document.getElementById('faceUsername').value;
+
+        if (!username) {
+            faceLoginStatus.textContent = 'Please enter your username.';
+            return;
+        }
+
+        faceLoginStatus.textContent = 'Loading face detection models...';
+
+        try {
+            // Load face-api models
+            await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model');
+
+            faceLoginStatus.textContent = 'Detecting face...';
+
+            const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            if (detections) {
+                const descriptor = Array.from(detections.descriptor);
+                faceLoginStatus.textContent = 'Verifying...';
+
+                // Send to server
+                const response = await fetch('/api/face-login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        face_data: JSON.stringify(descriptor)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    faceLoginStatus.textContent = '✓ Login successful! Redirecting...';
+                    faceLoginStatus.classList.add('text-green-600');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 1000);
+                } else {
+                    faceLoginStatus.textContent = 'Face recognition failed. Please try again or use password login.';
+                    faceLoginStatus.classList.add('text-red-600');
+                }
+            } else {
+                faceLoginStatus.textContent = 'No face detected. Please try again.';
+                faceLoginStatus.classList.add('text-red-600');
+            }
+        } catch (err) {
+            faceLoginStatus.textContent = 'Error: ' + err.message;
+            faceLoginStatus.classList.add('text-red-600');
+        }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', stopVideo);
+</script>
+{% endblock %}

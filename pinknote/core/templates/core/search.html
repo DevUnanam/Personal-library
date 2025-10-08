@@ -1,0 +1,57 @@
+{% extends "core/base.html" %}
+
+{% block title %}Search - PinkNote{% endblock %}
+
+{% block content %}
+<div class="card p-8 max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">Search</h2>
+
+    <form method="GET" action="{% url 'search' %}" class="mb-8">
+        <div class="flex gap-2">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search diary entries and library..."
+                   class="input-field flex-1" autofocus>
+            <button type="submit" class="btn-primary">🔍 Search</button>
+        </div>
+    </form>
+
+    {% if query %}
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Diary Entries</h3>
+        {% if diary_results %}
+        <div class="space-y-4">
+            {% for entry in diary_results %}
+            <a href="{% url 'diary_entry' entry.id %}" class="block card p-4 hover:shadow-lg transition">
+                <h4 class="text-lg font-bold text-gray-800 mb-1">{{ entry.title }}</h4>
+                <p class="text-sm text-gray-600 mb-2">{{ entry.date|date:"F d, Y" }}</p>
+                <p class="text-gray-700">{{ entry.body|striptags|truncatewords:30 }}</p>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No diary entries found</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Library</h3>
+        {% if library_results %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for item in library_results %}
+            <div class="card p-4">
+                <h4 class="text-lg font-bold text-gray-800 mb-2">{{ item.title }}</h4>
+                <p class="text-sm text-gray-600 mb-3">Genre: {{ item.get_genre_display }}</p>
+                <a href="{{ item.file.url }}" target="_blank" class="btn-primary text-sm inline-block">View PDF</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No books found</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mt-8">
+        <a href="{% url 'dashboard' %}" class="btn-secondary">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
