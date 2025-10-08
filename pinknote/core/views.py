@@ -167,22 +167,26 @@ def diary_delete_api(request, entry_id):
 
 @login_required
 def diary_by_date_api(request):
-    """Get diary entry by date"""
+    """Get all diary entries for a specific date"""
     date_str = request.GET.get('date')
     if date_str:
         try:
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            entry = DiaryEntry.objects.filter(user=request.user, date=date).first()
+            entries = DiaryEntry.objects.filter(user=request.user, date=date).order_by('-created_at')
 
-            if entry:
+            if entries.exists():
+                entries_data = [{
+                    'id': entry.id,
+                    'title': entry.title,
+                    'body': entry.body,
+                    'date': entry.date.isoformat(),
+                    'created_at': entry.created_at.isoformat()
+                } for entry in entries]
+
                 return JsonResponse({
                     'success': True,
-                    'entry': {
-                        'id': entry.id,
-                        'title': entry.title,
-                        'body': entry.body,
-                        'date': entry.date.isoformat()
-                    }
+                    'entries': entries_data,
+                    'count': entries.count()
                 })
         except ValueError:
             pass

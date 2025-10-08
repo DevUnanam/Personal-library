@@ -42,8 +42,7 @@ class DiaryEntry(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-date']
-        unique_together = ['user', 'date']
+        ordering = ['-date', '-created_at']
         verbose_name_plural = 'Diary Entries'
 
     def __str__(self):
