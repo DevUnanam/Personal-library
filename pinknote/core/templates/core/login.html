@@ -1,51 +1,110 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Login - PinkNote{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Page-specific background using static image */
+    /* Two-column layout: left image, right form */
+    .auth-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        min-height: 80vh;
+        align-items: center;
+    }
+
+    .auth-image {
+        width: 100%;
+        height: 100%;
+        min-height: 420px;
+        background-image: url("{% static 'images/background.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-image::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(138,79,255,0.25), rgba(255,111,181,0.25));
+        mix-blend-mode: overlay;
+    }
+
+    .glass-card {
+        background: rgba(255,255,255,0.6);
+        backdrop-filter: blur(10px) saturate(120%);
+        -webkit-backdrop-filter: blur(10px) saturate(120%);
+        border: 1px solid rgba(255,255,255,0.6);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(138,79,255,0.08);
+    }
+
+    .glass-card, .glass-card * { position: relative; z-index: 2; }
+
+    @media (max-width: 768px) {
+        .auth-grid { grid-template-columns: 1fr; padding: 1rem; }
+        .auth-image { display: none; }
+        .glass-card { padding: 1.25rem; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen flex items-center justify-center">
-    <div class="card p-8 w-full max-w-md">
-        <h2 class="text-3xl text-center mb-6">Welcome Back</h2>
+    <div class="w-full max-w-6xl auth-grid">
+        <div class="auth-image" aria-hidden="true"></div>
 
-        <div class="mb-6 flex gap-2">
-            <button type="button" id="passwordLoginTab" class="btn-primary flex-1">Password Login</button>
-            <button type="button" id="faceLoginTab" class="btn-secondary flex-1">Face Login</button>
+        <div class="glass-card mx-auto w-full max-w-md">
+            <h2 class="text-3xl text-center mb-6">Welcome Back</h2>
+
+            <div class="mb-6 flex gap-2">
+                <button type="button" id="passwordLoginTab" class="btn-primary flex-1">Password Login</button>
+                <button type="button" id="faceLoginTab" class="btn-secondary flex-1">Face Login</button>
+            </div>
+
+            <!-- Password Login Form -->
+            <form method="POST" id="passwordLoginForm">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                    <input type="text" name="username" required class="input-field" placeholder="Your username">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Password</label>
+                    <input type="password" name="password" required class="input-field" placeholder="Your password">
+                </div>
+
+                <button type="submit" class="btn-primary w-full">Login</button>
+            </form>
+
+            <!-- Face Login Form -->
+            <div id="faceLoginForm" class="hidden">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                    <input type="text" id="faceUsername" required class="input-field" placeholder="Your username">
+                </div>
+
+                <div class="text-center mb-4">
+                    <video id="faceVideo" width="320" height="240" autoplay class="mx-auto rounded-lg mb-3"></video>
+                    <button type="button" id="startFaceLogin" class="btn-primary">Verify Face</button>
+                    <p id="faceLoginStatus" class="mt-2 text-sm text-gray-600"></p>
+                </div>
+            </div>
+
+            <p class="text-center mt-6 text-gray-600">
+                Don't have an account? <a href="{% url 'register' %}" class="text-pink-main font-semibold">Register</a>
+            </p>
         </div>
-
-        <!-- Password Login Form -->
-        <form method="POST" id="passwordLoginForm">
-            {% csrf_token %}
-
-            <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-2">Username</label>
-                <input type="text" name="username" required class="input-field" placeholder="Your username">
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-gray-700 font-semibold mb-2">Password</label>
-                <input type="password" name="password" required class="input-field" placeholder="Your password">
-            </div>
-
-            <button type="submit" class="btn-primary w-full">Login</button>
-        </form>
-
-        <!-- Face Login Form -->
-        <div id="faceLoginForm" class="hidden">
-            <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-2">Username</label>
-                <input type="text" id="faceUsername" required class="input-field" placeholder="Your username">
-            </div>
-
-            <div class="text-center mb-4">
-                <video id="faceVideo" width="320" height="240" autoplay class="mx-auto rounded-lg mb-3"></video>
-                <button type="button" id="startFaceLogin" class="btn-primary">Verify Face</button>
-                <p id="faceLoginStatus" class="mt-2 text-sm text-gray-600"></p>
-            </div>
-        </div>
-
-        <p class="text-center mt-6 text-gray-600">
-            Don't have an account? <a href="{% url 'register' %}" class="text-pink-main font-semibold">Register</a>
-        </p>
     </div>
 </div>
 {% endblock %}

@@ -1,30 +1,18 @@
 # 🌸 PinkNote - Personal Diary & Library
-
 A beautiful pink and violet themed personal diary and library application with optional face recognition login.
+FEATURES
+Create, edit, and delete diary entries
+Interactive calendar view (FullCalendar)
+Rich text editor with formatting (Quill)
+Auto-save functionality
+Click on any calendar date to create/view entries
+Search through diary entries
+Upload and manage PDF books
+Organize by genre (Horror, Comedy, Comics, Romance, Fantasy, Mystery, Sci-Fi, Other)
+Built-in PDF viewer with page navigation
+Search and filter books by title and genre
+Secure file storage
 
-## ✨ Features
-
-### 📔 Diary
-- Create, edit, and delete diary entries
-- Interactive calendar view (FullCalendar)
-- Rich text editor with formatting (Quill)
-- Auto-save functionality
-- Click on any calendar date to create/view entries
-- Search through diary entries
-
-### 📚 Library
-- Upload and manage PDF books
-- Organize by genre (Horror, Comedy, Comics, Romance, Fantasy, Mystery, Sci-Fi, Other)
-- Built-in PDF viewer with page navigation
-- Search and filter books by title and genre
-- Secure file storage
-
-### 🔐 Authentication
-- Standard username/password login
-- Optional face recognition login (face-api.js)
-- Single user system (no multi-user admin needed)
-- Encrypted face data storage
-- Delete face recognition data anytime
 
 ### 🎨 Design
 - Pink and violet Barbie/Disney princess theme

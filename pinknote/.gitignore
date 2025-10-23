@@ -30,3 +30,11 @@ Thumbs.db
 
 # Face encryption key
 .face_key
+
+.ARCHITECTURE.md
+.build.sh
+.CHANGELOG.md
+.DEVELOPMENT.md
+.LICENSE.md
+.README.md
+.RELEASE.md
