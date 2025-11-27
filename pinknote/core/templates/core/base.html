@@ -95,14 +95,27 @@
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 16px rgba(255, 111, 181, 0.15);
-        }
+    box-shadow: 0 4px 16px rgba(255, 111, 181, 0.15);
+    border-radius: 50px; /* makes it pill-shaped */
+    padding: 0.5rem 2rem; /* vertical + horizontal padding for a capsule look */
+    max-width: 1200px; /* optional, for centering */
+    margin: 0 auto;    /* center horizontally */
+}
+
+
         .nh2 {
             color: white;
         }
 
-        h1, h2, h3 {
+        .nh1 {
+            color: #8a4fff;
+        }
+        h3, h2 {
+            color: #ff6fb5;
+        }
+
+
+        h1, {
             background: linear-gradient(135deg, #ff6fb5, #8a4fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -141,14 +154,14 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-    <nav class="navbar px-6 py-4 mb-6">
+    <nav class="navbar border border-2 border-pink-main px-6 py-4 mb-6 mt-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">PinkNote</h1>
+            <p class="text-pink-main text-2xl font-bold">PinkNote</p>
             <div class="flex gap-4 items-center">
-                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-pink-main transition">Dashboard</a>
-                <a href="{% url 'search' %}" class="text-gray-700 hover:text-pink-main transition">Search</a>
-                <a href="{% url 'profile' %}" class="text-gray-700 hover:text-pink-main transition">Profile</a>
-                <a href="{% url 'logout' %}" class="btn-secondary">Logout</a>
+                <a href="{% url 'dashboard' %}" class="text-white hover:text-pink-main transition">Dashboard</a>
+                <a href="{% url 'search' %}" class="text-white hover:text-pink-main transition">Search</a>
+                <a href="{% url 'profile' %}" class="text-white hover:text-pink-main transition">Profile</a>
+                <a href="{% url 'logout' %}" class="bg-white border border-2 rounded-full px-4 py-2 text-pink-main hover:bg-pink-main hover:text-white transition">Logout</a>
             </div>
         </div>
     </nav>
