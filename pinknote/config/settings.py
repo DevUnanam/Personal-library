@@ -27,7 +27,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "fallback-secret")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['personal-library-4-jqbz.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['', 'localhost', '127.0.0.1', 'personal-library-7-f9vs.onrender.com']
+
 
 # Application definition
 
