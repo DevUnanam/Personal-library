@@ -87,22 +87,6 @@
                 <input type="password" name="password" required class="input-field" placeholder="Choose a secure password">
             </div>
 
-            <div class="mb-6">
-                <label class="flex items-center">
-                    <input type="checkbox" id="enrollFace" class="mr-2">
-                    <span class="text-white">Enable Face Recognition Login (Optional)</span>
-                </label>
-            </div>
-
-            <div id="faceEnrollSection" class="mb-6 hidden">
-                <div class="text-center">
-                    <video id="video" width="320" height="240" autoplay class="mx-auto rounded-lg mb-3"></video>
-                    <button type="button" id="captureFaceBtn" class="btn-secondary">Capture Face</button>
-                    <p id="faceStatus" class="mt-2 text-sm text-gray-600"></p>
-                </div>
-                <input type="hidden" name="face_data" id="faceData">
-            </div>
-
             <button type="submit" class="btn-primary w-full">Create Account</button>
             </form>
 
