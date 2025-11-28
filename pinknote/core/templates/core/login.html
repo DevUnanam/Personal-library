@@ -67,7 +67,7 @@
 
             <div class="mb-6 flex gap-2">
                 <button type="button" id="passwordLoginTab" class="btn-primary flex-1">Password Login</button>
-                <button type="button" id="faceLoginTab" class="btn-secondary flex-1">Face Login</button>
+        
             </div>
 
             <!-- Password Login Form -->
@@ -86,20 +86,6 @@
 
                 <button type="submit" class="btn-primary w-full">Login</button>
             </form>
-
-            <!-- Face Login Form -->
-            <div id="faceLoginForm" class="hidden">
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Username</label>
-                    <input type="text" id="faceUsername" required class="input-field" placeholder="Your username">
-                </div>
-
-                <div class="text-center mb-4">
-                    <video id="faceVideo" width="320" height="240" autoplay class="mx-auto rounded-lg mb-3"></video>
-                    <button type="button" id="startFaceLogin" class="btn-primary">Verify Face</button>
-                    <p id="faceLoginStatus" class="mt-2 text-sm text-gray-600"></p>
-                </div>
-            </div>
 
             <p class="text-center text-white mt-6">
                 Don't have an account? <a href="{% url 'register' %}" class="text-white font-semibold">Register</a>
